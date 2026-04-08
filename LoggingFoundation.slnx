@@ -7,10 +7,12 @@
 	</Configurations>
 
 	<Folder Name="/Example/">
-		<Project Path="Example/LoggingConsole/LoggingConsole.csproj" />
 		<Project Path="Example/ClientLibrary/ClientLibrary.csproj" />
+		<Project Path="Example/LoggingConsole/LoggingConsole.csproj" />
 	</Folder>
-
+	<Folder Name="/Solution Items/">
+		<File Path="Directory.Build.props" />
+	</Folder>
 	<Project Path="LoggingService/LoggingService.csproj" />
 
 </Solution>
