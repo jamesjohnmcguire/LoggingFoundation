@@ -14,63 +14,8 @@ using Serilog.Core;
 
 public static partial class LogService
 {
-//	private static readonly ILoggerFactory loggerFactory =
-//		LoggerFactory.Create(ConfigureLogging);
-
 	private static ILoggerFactory? loggerFactory;
 	private static string logFilePath = "logs/app.log";
-
-	//public static ILogger<T> CreateLogger<T>() =>
-	//	loggerFactory.CreateLogger<T>();
-
-	//public static Microsoft.Extensions.Logging.ILogger CreateLogger(
-	//	string categoryName) =>
-	//	loggerFactory.CreateLogger(categoryName);
-
-	private static void ConfigureConsoleLogging(
-		SimpleConsoleFormatterOptions options)
-	{
-		options.IncludeScopes = false;
-		options.SingleLine = true;
-	}
-
-	private static void ConfigureJsonLogging(
-		JsonConsoleFormatterOptions options)
-	{
-		JsonWriterOptions writerOption = new()
-		{
-			Indented = true
-		};
-
-		options.JsonWriterOptions = writerOption;
-	}
-
-	private static void ConfigureSerilogLogging(ILoggingBuilder builder)
-	{
-		string messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} " +
-			"[{Level:u3}] {Message:lj}{NewLine}{Exception}";
-
-		LoggerConfiguration configuration = new LoggerConfiguration();
-
-		configuration.MinimumLevel.Information();
-		configuration.WriteTo.Console(outputTemplate: messageTemplate);
-		configuration.WriteTo.File(
-			logFilePath,
-			rollingInterval: RollingInterval.Day,
-			outputTemplate: messageTemplate);
-
-		Logger serilogLogger = configuration.CreateLogger();
-
-		builder.AddSerilog(serilogLogger);
-	}
-
-	private static void ConfigureLogging(ILoggingBuilder builder)
-	{
-#if CONSOLE_ONLY
-		builder.AddSimpleConsole(ConfigureConsoleLogging);
-#endif
-		ConfigureSerilogLogging(builder);
-	}
 
 	public static ILogger<T> CreateLogger<T>()
 	{
@@ -83,15 +28,6 @@ public static partial class LogService
 	{
 		EnsureInitialized();
 		return loggerFactory!.CreateLogger(categoryName);
-	}
-
-	private static void EnsureInitialized()
-	{
-		if (loggerFactory == null)
-		{
-			throw new InvalidOperationException(
-				"LogService must be initialized before use.");
-		}
 	}
 
 	[LoggerMessage(
@@ -138,4 +74,58 @@ public static partial class LogService
 	public static partial void Warning(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message);
+
+	private static void ConfigureConsoleLogging(
+		SimpleConsoleFormatterOptions options)
+	{
+		options.IncludeScopes = false;
+		options.SingleLine = true;
+	}
+
+	private static void ConfigureJsonLogging(
+		JsonConsoleFormatterOptions options)
+	{
+		JsonWriterOptions writerOption = new()
+		{
+			Indented = true
+		};
+
+		options.JsonWriterOptions = writerOption;
+	}
+
+	private static void ConfigureSerilogLogging(ILoggingBuilder builder)
+	{
+		string messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} " +
+			"[{Level:u3}] {Message:lj}{NewLine}{Exception}";
+
+		LoggerConfiguration configuration = new LoggerConfiguration();
+
+		configuration.MinimumLevel.Information();
+		configuration.WriteTo.Console(outputTemplate: messageTemplate);
+		configuration.WriteTo.File(
+			logFilePath,
+			rollingInterval: RollingInterval.Day,
+			outputTemplate: messageTemplate);
+
+		Logger serilogLogger = configuration.CreateLogger();
+
+		builder.AddSerilog(serilogLogger);
+	}
+
+	private static void ConfigureLogging(ILoggingBuilder builder)
+	{
+#if CONSOLE_ONLY
+		builder.AddSimpleConsole(ConfigureConsoleLogging);
+#endif
+		ConfigureSerilogLogging(builder);
+	}
+
+	private static void EnsureInitialized()
+	{
+		if (loggerFactory == null)
+		{
+			throw new InvalidOperationException(
+				"LogService must be initialized before use.");
+		}
+	}
 }
