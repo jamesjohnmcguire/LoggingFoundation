@@ -1,4 +1,10 @@
-﻿namespace ClientLibrary;
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="TestService.cs" company="Digital Zen Works">
+// Copyright © 2026 Digital Zen Works.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+namespace ClientLibrary;
 
 using System;
 using System.Collections.Generic;

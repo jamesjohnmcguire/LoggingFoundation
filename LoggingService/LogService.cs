@@ -1,4 +1,10 @@
-﻿namespace LoggingService;
+/////////////////////////////////////////////////////////////////////////////
+// <copyright file="LogService.cs" company="Digital Zen Works">
+// Copyright © 2026 Digital Zen Works.
+// </copyright>
+/////////////////////////////////////////////////////////////////////////////
+
+namespace LoggingService;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
