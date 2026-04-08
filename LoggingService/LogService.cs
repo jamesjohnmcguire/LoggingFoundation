@@ -6,14 +6,14 @@
 
 namespace LoggingService;
 
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
-using System.Globalization;
-using System.Text.Json;
 
 public static partial class LogService
 {
