@@ -5,6 +5,8 @@
 		<Company>Digital Zen Works</Company>
 		<Copyright>Copyright © 2026 Digital Zen Works</Copyright>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NeutralLanguage>en-US</NeutralLanguage>
 	</PropertyGroup>
 
 </Project>

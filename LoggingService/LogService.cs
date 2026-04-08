@@ -15,17 +15,43 @@ using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
 
+/// <summary>
+/// Provides static methods for creating and managing loggers, as well as
+/// logging messages at various severity levels within the application.
+/// </summary>
+/// <remarks>Callers must initialize the logging system by invoking the
+/// Initialize method before creating or using loggers. This class supports
+/// logging to both the console and file outputs, and integrates with
+/// Microsoft.Extensions.Logging and Serilog. All members are thread-safe and
+/// intended for use throughout the application's lifetime.</remarks>
 public static partial class LogService
 {
 	private static ILoggerFactory? loggerFactory;
 	private static string logFilePath = "logs/app.log";
 
+	/// <summary>
+	/// Creates a logger instance for the specified category type.
+	/// </summary>
+	/// <typeparam name="T">The category type for which to create a logger.
+	/// Typically, this is the class or component that will use the logger.
+	/// </typeparam>
+	/// <returns>An <see cref="ILogger{T}"/> instance that can be used to log
+	/// messages for the specified category type.</returns>
 	public static ILogger<T> CreateLogger<T>()
 	{
 		EnsureInitialized();
 		return loggerFactory!.CreateLogger<T>();
 	}
 
+	/// <summary>
+	/// Creates a new logger instance for the specified category name.
+	/// </summary>
+	/// <param name="categoryName">The name of the category for messages
+	/// produced by the logger. This value is typically the fully qualified
+	/// class name or another logical grouping. Cannot be null or empty.
+	/// </param>
+	/// <returns>An ILogger instance that can be used to log messages for the
+	/// specified category.</returns>
 	public static Microsoft.Extensions.Logging.ILogger CreateLogger(
 		string categoryName)
 	{
@@ -33,6 +59,16 @@ public static partial class LogService
 		return loggerFactory!.CreateLogger(categoryName);
 	}
 
+	/// <summary>
+	/// Logs an error message with the specified logger at the Error level.
+	/// </summary>
+	/// <remarks>Use this method to record error events that indicate a failure
+	/// in the current operation. The message can include contextual
+	/// information to aid in diagnosing issues.</remarks>
+	/// <param name="logger">The logger instance used to write the error
+	/// message. Cannot be null.</param>
+	/// <param name="message">The error message to log. Cannot be null or
+	/// empty.</param>
 	[LoggerMessage(
 		EventId = 1,
 		Level = LogLevel.Error,
@@ -41,6 +77,16 @@ public static partial class LogService
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message);
 
+	/// <summary>
+	/// Writes an informational log message using the specified logger.
+	/// </summary>
+	/// <remarks>This extension method provides a convenient way to log
+	/// informational messages using the ILogger interface. The message is
+	/// logged with the Information log level.</remarks>
+	/// <param name="logger">The logger instance used to write the
+	/// informational message. Cannot be null.</param>
+	/// <param name="message">The message to log at the informational level.
+	/// Cannot be null.</param>
 	public static void Info(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message)
@@ -48,6 +94,17 @@ public static partial class LogService
 		Information(logger, message);
 	}
 
+	/// <summary>
+	/// Writes an informational log message using the specified logger.
+	/// </summary>
+	/// <remarks>Use this method to record general information about
+	/// application flow or state. Informational logs are typically used for
+	/// tracking normal operations and are not intended for error or diagnostic
+	/// details.</remarks>
+	/// <param name="logger">The logger instance used to write the log entry.
+	/// Cannot be null.</param>
+	/// <param name="message">The message to log. This value can be a composite
+	/// format string.</param>
 	[LoggerMessage(
 		EventId = 3,
 		Level = LogLevel.Information,
@@ -56,6 +113,15 @@ public static partial class LogService
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message);
 
+	/// <summary>
+	/// Initializes the logging system with the specified log file path.
+	/// </summary>
+	/// <remarks>Call this method before performing any logging operations to
+	/// ensure that log messages are written to the correct file. Subsequent
+	/// calls will reconfigure the logging system with the new file path.
+	/// </remarks>
+	/// <param name="filePath">The full path to the log file to which log
+	/// entries will be written. Cannot be null or empty.</param>
 	public static void Initialize(string filePath)
 	{
 		logFilePath = filePath;
@@ -63,6 +129,13 @@ public static partial class LogService
 		loggerFactory = LoggerFactory.Create(ConfigureLogging);
 	}
 
+	/// <summary>
+	/// Writes a warning log message using the specified logger.
+	/// </summary>
+	/// <param name="logger">The logger instance used to write the warning
+	/// message. Cannot be null.</param>
+	/// <param name="message">The message to log as a warning. Cannot be null.
+	/// </param>
 	public static void Warn(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message)
@@ -70,6 +143,17 @@ public static partial class LogService
 		Warning(logger, message);
 	}
 
+	/// <summary>
+	/// Writes a warning log message using the specified logger.
+	/// </summary>
+	/// <remarks>Use this method to log warning messages that highlight
+	/// potential issues or unexpected events in the application's flow. The
+	/// message is logged with a warning severity and may be filtered based on
+	/// the logger's configuration.</remarks>
+	/// <param name="logger">The logger instance used to write the warning
+	/// message. Cannot be null.</param>
+	/// <param name="message">The message to log. This value can include format
+	/// placeholders.</param>
 	[LoggerMessage(
 		EventId = 2,
 		Level = LogLevel.Warning,
