@@ -6,9 +6,9 @@
 
 namespace LoggingService;
 
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using System.Text.Json;
 using Serilog;
 using Serilog.Core;
 
