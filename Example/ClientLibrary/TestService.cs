@@ -20,7 +20,7 @@ public class TestService
 
 	public void Test()
 	{
-		logger.LogInformation("This is a test message.");
+		logger.Information("This is a test message.");
 		LogService.Error(logger, "This is an error message.");
 	}
 }
