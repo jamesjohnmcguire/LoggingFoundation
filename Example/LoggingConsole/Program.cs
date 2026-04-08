@@ -11,9 +11,9 @@ using ClientLibrary;
 using LoggingService;
 using Microsoft.Extensions.Logging;
 
-internal class Program
+internal static class Program
 {
-	static void Main(string[] args)
+	internal static void Main(string[] args)
 	{
 		Console.WriteLine("Hello, World!");
 
