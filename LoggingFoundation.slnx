@@ -1,0 +1,16 @@
+<Solution>
+
+	<Configurations>
+		<Platform Name="Any CPU" />
+		<Platform Name="x64" />
+		<Platform Name="x86" />
+	</Configurations>
+
+	<Folder Name="/Example/">
+		<Project Path="Example/LoggingConsole/LoggingConsole.csproj" />
+		<Project Path="Example/ClientLibrary/ClientLibrary.csproj" />
+	</Folder>
+
+	<Project Path="LoggingService/LoggingService.csproj" />
+
+</Solution>
