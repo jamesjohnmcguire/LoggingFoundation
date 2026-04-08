@@ -6,11 +6,14 @@
 
 namespace LoggingService;
 
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Serilog;
+using Serilog.Configuration;
 using Serilog.Core;
+using Serilog.Events;
+using System.Globalization;
+using System.Text.Json;
 
 public static partial class LogService
 {
@@ -95,17 +98,24 @@ public static partial class LogService
 
 	private static void ConfigureSerilogLogging(ILoggingBuilder builder)
 	{
-		string messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} " +
-			"[{Level:u3}] {Message:lj}{NewLine}{Exception}";
+		const string outputTemplate =
+			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+			"{Message:lj}{NewLine}{Exception}";
 
-		LoggerConfiguration configuration = new LoggerConfiguration();
-
+		LoggerConfiguration configuration = new();
 		configuration.MinimumLevel.Information();
-		configuration.WriteTo.Console(outputTemplate: messageTemplate);
-		configuration.WriteTo.File(
+
+		LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
+		sinkConfiguration.Console(
+			LogEventLevel.Information,
+			outputTemplate,
+			CultureInfo.CurrentCulture);
+		sinkConfiguration.File(
 			logFilePath,
-			rollingInterval: RollingInterval.Day,
-			outputTemplate: messageTemplate);
+			LogEventLevel.Information,
+			outputTemplate,
+			CultureInfo.CurrentCulture,
+			rollingInterval: RollingInterval.Day);
 
 		Logger serilogLogger = configuration.CreateLogger();
 
