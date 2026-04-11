@@ -30,6 +30,42 @@ public static partial class LogService
 	private static string logFilePath = "logs/app.log";
 
 	/// <summary>
+	/// Configures the logging system to write informational and higher-level
+	/// log events to both the console and a rolling log file.
+	/// </summary>
+	/// <remarks>This method sets up logging with a standard output template
+	/// and ensures that log events at the Information level or higher are
+	/// captured. The log file will be created if it does not exist and will
+	/// roll over at midnight each day. Calling this method multiple times will
+	/// overwrite the existing logger configuration.</remarks>
+	/// <param name="logFilePath">The file path where log entries will be
+	/// written. The log file will roll over daily. Cannot be null or empty.
+	/// </param>
+	public static void Configure(string logFilePath)
+	{
+		const string outputTemplate =
+			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+			"{Message:lj}{NewLine}{Exception}";
+
+		LoggerConfiguration configuration = new();
+		configuration.MinimumLevel.Information();
+
+		LoggerSinkConfiguration sinkConfiguration = configuration.WriteTo;
+		sinkConfiguration.Console(
+			LogEventLevel.Information,
+			outputTemplate,
+			CultureInfo.CurrentCulture);
+		sinkConfiguration.File(
+			logFilePath,
+			LogEventLevel.Information,
+			outputTemplate,
+			CultureInfo.CurrentCulture,
+			rollingInterval: RollingInterval.Day);
+
+		Log.Logger = configuration.CreateLogger();
+	}
+
+	/// <summary>
 	/// Creates a logger instance for the specified category type.
 	/// </summary>
 	/// <typeparam name="T">The category type for which to create a logger.
