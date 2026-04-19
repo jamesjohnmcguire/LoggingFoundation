@@ -114,6 +114,13 @@ public static partial class LogService
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message);
 
+	/// <summary>
+	/// Logs the specified exception as an error using the provided logger.
+	/// </summary>
+	/// <param name="logger">The logger instance used to record the error.
+	/// Cannot be null.</param>
+	/// <param name="exception">The exception to log. If null, a generic error
+	/// message is logged instead.</param>
 	public static void Exception(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		Exception exception)
@@ -128,6 +135,23 @@ public static partial class LogService
 		Error(logger, details);
 	}
 
+	/// <summary>
+	/// Logs an exception with contextual information about the caller and
+	/// line number.
+	/// </summary>
+	/// <remarks>This method is intended to provide additional context when
+	/// logging exceptions by including the caller's name and line number. It
+	/// is useful for debugging and tracing errors in the codebase.</remarks>
+	/// <param name="logger">The logger instance used to write the exception
+	/// details.</param>
+	/// <param name="exception">The exception to be logged. Cannot be null.
+	/// </param>
+	/// <param name="caller">The name of the calling member. This value is
+	/// automatically provided by the compiler and should not be set explicitly.
+	/// </param>
+	/// <param name="lineNumber">The line number in the source file at which
+	/// the method is called. This value is automatically provided by the
+	/// compiler and should not be set explicitly.</param>
 	public static void Exception(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		Exception exception,
