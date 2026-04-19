@@ -7,6 +7,7 @@
 namespace LoggingService;
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -112,6 +113,32 @@ public static partial class LogService
 	public static partial void Error(
 		this Microsoft.Extensions.Logging.ILogger logger,
 		string message);
+
+	public static void Exception(
+		this Microsoft.Extensions.Logging.ILogger logger,
+		Exception exception)
+	{
+		string details = "Exception occurred";
+
+		if (exception != null)
+		{
+			details = exception.ToString();
+		}
+
+		Error(logger, details);
+	}
+
+	public static void Exception(
+		this Microsoft.Extensions.Logging.ILogger logger,
+		Exception exception,
+		[CallerMemberName] string caller = "",
+		[CallerLineNumber] int lineNumber = 0)
+	{
+		string message = "Exception in {caller} at line {lineNumber}";
+		Error(logger, message);
+
+		Exception(logger, exception);
+	}
 
 	/// <summary>
 	/// Writes an informational log message using the specified logger.
