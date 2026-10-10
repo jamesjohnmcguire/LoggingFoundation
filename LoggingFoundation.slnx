@@ -15,4 +15,5 @@
 	</Folder>
 	<Project Path="LoggingService/LoggingService.csproj" />
 
+	<Project Path="LoggingService.Tests/LoggingService.Tests.csproj" />
 </Solution>
