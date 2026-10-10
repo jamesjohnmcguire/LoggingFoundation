@@ -12,8 +12,13 @@ command therefore discover these tests without additional script changes.
 
 These are characterization tests for the existing Configure API used by
 BackupManager: dated file and console output, minimum severity, reopening,
-missing directories, message helpers, and exception details. They do not
-introduce the proposed fixed active filename or test future rollover rules.
+missing directories, message helpers, and exception details.
+
+DailyArchiveFileSinkTests covers fixed filenames, rollover, restarts,
+collisions, retention, local dates, concurrent writes, disposal, exclusive
+ownership, and recovery after a failed rename. An injected TimeProvider
+advances dates without sleeping. LogServiceTests also verifies the public
+mode selection and rejects invalid configuration.
 
 Each test uses a unique temporary directory, closes its logger, restores
 Console.Out and Log.Logger, and deletes its own files. The fixture is

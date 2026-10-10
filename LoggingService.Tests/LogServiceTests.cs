@@ -10,6 +10,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Serilog;
@@ -269,9 +270,71 @@ internal sealed class LogServiceTests
 		Assert.That(output, Does.Contain(expected));
 	}
 
+	/// <summary>
+	/// Selects a fixed filename while preserving filtering and console output.
+	/// </summary>
+	/// <returns>A task representing shutdown and file verification.</returns>
+	[Test]
+	public async Task ConfigureFixedModeWritesFileAndConsole()
+	{
+		LogService.Configure(
+			logPath, LogFileMode.FixedNameWithDailyArchives);
+
+		Log.Debug("excluded-debug");
+		Log.Information("fixed-file-marker");
+		await Log.CloseAndFlushAsync().ConfigureAwait(false);
+
+		bool exists = File.Exists(logPath);
+		Assert.That(exists, Is.True);
+
+		string fileOutput = await File.ReadAllTextAsync(logPath).
+			ConfigureAwait(false);
+		string capturedConsoleOutput = consoleOutput.ToString();
+
+		Assert.That(fileOutput, Does.Contain("INF] fixed-file-marker"));
+		Assert.That(fileOutput, Does.Not.Contain("excluded-debug"));
+		Assert.That(
+			capturedConsoleOutput,
+			Does.Contain("INF] fixed-file-marker"));
+		Assert.That(
+			capturedConsoleOutput,
+			Does.Not.Contain("excluded-debug"));
+	}
+
+	/// <summary>
+	/// Rejects invalid modes before replacing the existing global logger.
+	/// </summary>
+	[Test]
+	public void ConfigureRejectsUnknownMode()
+	{
+		Assert.Throws<ArgumentOutOfRangeException>(ConfigureUnknownMode);
+		Assert.That(Log.Logger, Is.SameAs(previousLogger));
+	}
+
+	/// <summary>
+	/// Rejects retention counts that cannot preserve any archives.
+	/// </summary>
+	[Test]
+	public void ConfigureRejectsZeroRetention()
+	{
+		Assert.Throws<ArgumentOutOfRangeException>(ConfigureZeroRetention);
+		Assert.That(Log.Logger, Is.SameAs(previousLogger));
+	}
+
 	private static void ConfigureTestLogging(ILoggingBuilder builder)
 	{
 		builder.AddSerilog(Log.Logger);
+	}
+
+	private void ConfigureUnknownMode()
+	{
+		LogService.Configure(logPath, (LogFileMode)100);
+	}
+
+	private void ConfigureZeroRetention()
+	{
+		LogService.Configure(
+			logPath, LogFileMode.FixedNameWithDailyArchives, 0);
 	}
 
 	private string ReadLogOutput()

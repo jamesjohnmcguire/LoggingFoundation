@@ -6,6 +6,7 @@
 
 namespace LoggingService;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -15,6 +16,7 @@ using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Formatting.Display;
 
 /// <summary>
 /// Provides static methods for creating and managing loggers, as well as
@@ -38,12 +40,47 @@ public static partial class LogService
 	/// and ensures that log events at the Information level or higher are
 	/// captured. The log file will be created if it does not exist and will
 	/// roll over at midnight each day. Calling this method multiple times will
-	/// overwrite the existing logger configuration.</remarks>
+	/// replace the global logger. Close the previous logger before
+	/// reconfiguring.</remarks>
 	/// <param name="logFilePath">The file path where log entries will be
 	/// written. The log file will roll over daily. Cannot be null or empty.
 	/// </param>
 	public static void Configure(string logFilePath)
 	{
+		Configure(logFilePath, LogFileMode.DatedFiles);
+	}
+
+	/// <summary>
+	/// Configures console and file logging using the selected naming mode.
+	/// </summary>
+	/// <param name="logFilePath">The requested active file path.</param>
+	/// <param name="mode">The file naming policy.</param>
+	/// <param name="retainedFileCountLimit">
+	/// The number of archives in fixed mode, or total files in dated mode.
+	/// Use null for unlimited retention.
+	/// </param>
+	[SuppressMessage(
+		"Reliability",
+		"CA2000:Dispose objects before losing scope",
+		Justification = "Serilog owns the sink; setup failures dispose it.")]
+	public static void Configure(
+		string logFilePath,
+		LogFileMode mode,
+		int? retainedFileCountLimit = 31)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(logFilePath);
+
+		if (!Enum.IsDefined(mode))
+		{
+			throw new ArgumentOutOfRangeException(nameof(mode));
+		}
+
+		if (retainedFileCountLimit < 1)
+		{
+			throw new ArgumentOutOfRangeException(
+				nameof(retainedFileCountLimit));
+		}
+
 		const string outputTemplate =
 			"[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
 			"{Message:lj}{NewLine}{Exception}";
@@ -56,14 +93,40 @@ public static partial class LogService
 			LogEventLevel.Information,
 			outputTemplate,
 			CultureInfo.CurrentCulture);
-		sinkConfiguration.File(
-			logFilePath,
-			LogEventLevel.Information,
-			outputTemplate,
-			CultureInfo.CurrentCulture,
-			rollingInterval: RollingInterval.Day);
 
-		Log.Logger = configuration.CreateLogger();
+		if (mode == LogFileMode.FixedNameWithDailyArchives)
+		{
+			MessageTemplateTextFormatter formatter = new(
+				outputTemplate, CultureInfo.CurrentCulture);
+			DailyArchiveFileSink sink = new(
+				logFilePath,
+				formatter,
+				TimeProvider.System,
+				retainedFileCountLimit);
+
+			try
+			{
+				sinkConfiguration.Sink(sink, LogEventLevel.Information);
+				Log.Logger = configuration.CreateLogger();
+			}
+			catch
+			{
+				sink.Dispose();
+				throw;
+			}
+		}
+		else
+		{
+			sinkConfiguration.File(
+				logFilePath,
+				LogEventLevel.Information,
+				outputTemplate,
+				CultureInfo.CurrentCulture,
+				rollingInterval: RollingInterval.Day,
+				retainedFileCountLimit: retainedFileCountLimit);
+
+			Log.Logger = configuration.CreateLogger();
+		}
 	}
 
 	/// <summary>
