@@ -6,6 +6,7 @@
 
 namespace LoggingService;
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
